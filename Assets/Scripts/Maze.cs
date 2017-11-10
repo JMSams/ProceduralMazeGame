@@ -45,8 +45,6 @@ namespace FallingSloth.ProceduralMazeGame
                     }
                 }
             }
-
-            cells[(int)endPos.x, (int)endPos.y] |= CellStates.IsEnd;
         }
 
         IEnumerator RecursiveBacktracker(int x, int y)
