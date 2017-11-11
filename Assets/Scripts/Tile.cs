@@ -36,7 +36,7 @@ namespace FallingSloth.ProceduralMazeGame
             set
             {
                 _x = value;
-                transform.position = new Vector3(value, y);
+                transform.localPosition = new Vector3(value, y);
             }
         }
         
@@ -47,7 +47,7 @@ namespace FallingSloth.ProceduralMazeGame
             set
             {
                 _y = value;
-                transform.position = new Vector3(x, value);
+                transform.localPosition = new Vector3(x, value);
             }
         }
 

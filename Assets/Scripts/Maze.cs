@@ -35,6 +35,8 @@ namespace FallingSloth.ProceduralMazeGame
 
         void Start()
         {
+            transform.position = new Vector3(-gridSizeX / 2f + .5f, -gridSizeY / 2f - .4f);
+
             StartCoroutine(GenerateMaze());
         }
 
@@ -95,7 +97,7 @@ namespace FallingSloth.ProceduralMazeGame
         public void ChangeDelay(float newDelay)
         {
             delay = newDelay;
-            delayText.text = string.Format("Delay: {0:0.00%}", newDelay);
+            delayText.text = string.Format("Delay: {0:0.00}", newDelay);
         }
 
         IEnumerator RecursiveBacktracker(int x, int y)
@@ -151,6 +153,7 @@ namespace FallingSloth.ProceduralMazeGame
                             default:
                                 throw new System.Exception("Something has gone terribly wrong: toVisit has invalid key.");
                         }
+                        SetSprite(x, y);
                         yield return StartCoroutine(RecursiveBacktracker(tile.Value.x, tile.Value.y));
                     }
                 }
