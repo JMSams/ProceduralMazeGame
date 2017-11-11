@@ -14,6 +14,12 @@ namespace FallingSloth.ProceduralMazeGame
 
         int startX, startY, endX, endY;
 
+        public Color startColour = Color.red;
+        public Color endColour = Color.green;
+        public Color normalColour = Color.white;
+        public Color inProgressColour = Color.magenta;
+        public Color defaultColour = Color.grey;
+
         [Range(3, 64)]
         public int gridSizeX, gridSizeY;
 
@@ -47,11 +53,13 @@ namespace FallingSloth.ProceduralMazeGame
                     tiles[x, y].gameObject.name = "Tile (" + x + "," + y + ")";
                     tiles[x, y].x = x;
                     tiles[x, y].y = y;
+                    tiles[x, y].renderer.color = defaultColour;
                 }
             }
 
             startX = Random.Range(0, gridSizeX);
             startY = Random.Range(0, gridSizeY);
+            tiles[startX, startY].isStart = true;
 
             deadEnds = new List<Tile>();
 
@@ -97,7 +105,7 @@ namespace FallingSloth.ProceduralMazeGame
 
             tiles[x, y].visited = true;
 
-            tiles[x, y].renderer.color = Color.red;
+            tiles[x, y].renderer.color = inProgressColour;
 
             Dictionary<char, Tile> toVisit = new Dictionary<char, Tile>();
 
@@ -152,7 +160,7 @@ namespace FallingSloth.ProceduralMazeGame
                 deadEnds.Add(tiles[x, y]);
             }
 
-            tiles[x, y].renderer.color = Color.white;
+            tiles[x, y].renderer.color = (tiles[x,y].isStart) ? startColour : normalColour;
             SetSprite(x, y);
 
             if (delay > 0f)
