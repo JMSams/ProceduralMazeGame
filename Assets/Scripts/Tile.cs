@@ -5,10 +5,51 @@ namespace FallingSloth.ProceduralMazeGame
 {
     public class Tile : MonoBehaviour
     {
-        new SpriteRenderer renderer;
+        [HideInInspector]
+        new public SpriteRenderer renderer;
 
         [HideInInspector]
-        public bool northCorridor, eastCorridor, southCorridor, westCorridor, isStart, isEnd;
+        public bool visited;
+
+        [HideInInspector]
+        public bool northCorridor;
+
+        [HideInInspector]
+        public bool eastCorridor;
+
+        [HideInInspector]
+        public bool southCorridor;
+
+        [HideInInspector]
+        public bool westCorridor;
+
+        [HideInInspector]
+        public bool isStart;
+
+        [HideInInspector]
+        public bool isEnd;
+
+        private int _x;
+        public int x
+        {
+            get { return _x; }
+            set
+            {
+                _x = value;
+                transform.position = new Vector3(value, y);
+            }
+        }
+        
+        private int _y;
+        public int y
+        {
+            get { return _y; }
+            set
+            {
+                _y = value;
+                transform.position = new Vector3(x, value);
+            }
+        }
 
         void Awake()
         {
