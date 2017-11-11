@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: f3198e5ae9faab24ba518b82f2118f9e
+timeCreated: 1505110681
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Funky Rundkopf NF
+  fontNames:
+  - Funky Rundkopf NF
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 00b9459d6af261a4eaaf17808f752041, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

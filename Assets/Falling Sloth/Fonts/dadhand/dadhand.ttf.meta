@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: e0031e9f10ef7514b8ddf232aeb8fe1a
+timeCreated: 1505110380
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Dadhand
+  fontNames:
+  - Dadhand
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

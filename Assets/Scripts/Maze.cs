@@ -28,6 +28,11 @@ namespace FallingSloth.ProceduralMazeGame
 
         void Start()
         {
+            GenerateMaze();
+        }
+
+        void GenerateMaze()
+        {
             tiles = new Tile[gridSizeX, gridSizeY];
             for (int x = 0; x < gridSizeX; x++)
             {
@@ -44,14 +49,22 @@ namespace FallingSloth.ProceduralMazeGame
             startY = Random.Range(0, gridSizeY);
 
             deadEnds = new List<Tile>();
-
+            checkedCount = 0;
             totalCount = gridSizeX * gridSizeY;
-            StartCoroutine(RecursiveBacktracker(startX, startY));
-            StartCoroutine(SetSprites());
+
+            StartCoroutine(GenerateMazeAndAddSprites());
         }
 
         public void StepForward() { stepForward = true; }
         public void StopStepping() { useStepping = false; }
+        public void StopAndRestart()
+        {
+            StopAllCoroutines();
+            
+            stepForward = false;
+            useStepping = true;
+            GenerateMaze();
+        }
 
         IEnumerator RecursiveBacktracker(int x, int y)
         {
@@ -99,7 +112,10 @@ namespace FallingSloth.ProceduralMazeGame
 
                 foreach (Tile tile in toVisit)
                 {
-                    yield return StartCoroutine(RecursiveBacktracker(tile.x, tile.y));
+                    if (tiles[tile.x, tile.y].visited)
+                        continue;
+                    else
+                        yield return StartCoroutine(RecursiveBacktracker(tile.x, tile.y));
                 }
             }
             else
@@ -111,10 +127,9 @@ namespace FallingSloth.ProceduralMazeGame
             checkedCount++;
         }
 
-        IEnumerator SetSprites()
+        IEnumerator GenerateMazeAndAddSprites()
         {
-            while (checkedCount < totalCount)
-                yield return null;
+            yield return StartCoroutine(RecursiveBacktracker(startX, startY));
 
             #region Set sprites
             for (int x = 0; x < gridSizeX; x++)

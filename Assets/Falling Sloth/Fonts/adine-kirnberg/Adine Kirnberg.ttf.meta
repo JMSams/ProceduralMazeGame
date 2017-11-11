@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 83cddd423f9e5dd43bbaea15be88b6b5
+timeCreated: 1505110456
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Adine Kirnberg
+  fontNames:
+  - Adine Kirnberg
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

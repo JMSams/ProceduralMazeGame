@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 73063261f2df4684b84052e1b03563ac
+timeCreated: 1505110681
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Fadgod
+  fontNames:
+  - Fadgod
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
