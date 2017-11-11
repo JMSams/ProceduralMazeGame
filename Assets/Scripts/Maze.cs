@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace FallingSloth.ProceduralMazeGame
 {
@@ -20,19 +21,23 @@ namespace FallingSloth.ProceduralMazeGame
 
         public List<Sprite> tileSprites;
 
-        bool stepForward = false;
-        bool useStepping = true;
+        public float delay = 0.5f;
 
-        int checkedCount = 0;
-        int totalCount;
+        bool running = false;
+
+        public Text delayText;
 
         void Start()
         {
-            GenerateMaze();
+            StartCoroutine(GenerateMaze());
         }
 
-        void GenerateMaze()
+        IEnumerator GenerateMaze()
         {
+            running = true;
+
+            if (tiles != null) ClearGrid();
+
             tiles = new Tile[gridSizeX, gridSizeY];
             for (int x = 0; x < gridSizeX; x++)
             {
@@ -49,73 +54,97 @@ namespace FallingSloth.ProceduralMazeGame
             startY = Random.Range(0, gridSizeY);
 
             deadEnds = new List<Tile>();
-            checkedCount = 0;
-            totalCount = gridSizeX * gridSizeY;
 
-            StartCoroutine(GenerateMazeAndAddSprites());
+            yield return StartCoroutine(RecursiveBacktracker(startX, startY));
+
+            running = false;
         }
 
-        public void StepForward() { stepForward = true; }
-        public void StopStepping() { useStepping = false; }
-        public void StopAndRestart()
+        void ClearGrid()
+        {
+            for (int x = 0; x < gridSizeX; x++)
+            {
+                for (int y = 0; y < gridSizeY; y++)
+                {
+                    Destroy(tiles[x, y].gameObject);
+                }
+            }
+        }
+        
+        public void Stop()
         {
             StopAllCoroutines();
-            
-            stepForward = false;
-            useStepping = true;
-            GenerateMaze();
+            running = false;
+        }
+
+        public void Restart()
+        {
+            if (running) { Stop(); }
+
+            StartCoroutine(GenerateMaze());
+        }
+
+        public void ChangeDelay(float newDelay)
+        {
+            delay = newDelay;
+            delayText.text = string.Format("Delay: {0:0.00%}", newDelay);
         }
 
         IEnumerator RecursiveBacktracker(int x, int y)
         {
-            while (useStepping && !stepForward)
-            {
-                yield return null;
-            }
-            stepForward = false;
+            if (delay > 0f)
+                yield return new WaitForSeconds(delay / 2f);
 
             tiles[x, y].visited = true;
 
             tiles[x, y].renderer.color = Color.red;
 
-            List<Tile> toVisit = new List<Tile>();
+            Dictionary<char, Tile> toVisit = new Dictionary<char, Tile>();
 
             if (x > 0 && !tiles[x - 1, y].visited)
-            {
-                tiles[x, y].westCorridor = true;
-                tiles[x - 1, y].eastCorridor = true;
-                toVisit.Add(tiles[x - 1, y]);
-            }
+                toVisit.Add('w', tiles[x - 1, y]);
+
             if (x < gridSizeX - 1 && !tiles[x + 1, y].visited)
-            {
-                tiles[x, y].eastCorridor = true;
-                tiles[x + 1, y].westCorridor = true;
-                toVisit.Add(tiles[x + 1, y]);
-            }
+                toVisit.Add('e', tiles[x + 1, y]);
 
             if (y > 0 && !tiles[x, y - 1].visited)
-            {
-                tiles[x, y].southCorridor = true;
-                tiles[x, y - 1].northCorridor = true;
-                toVisit.Add(tiles[x, y - 1]);
-            }
+                toVisit.Add('s', tiles[x, y - 1]);
+            
             if (y < gridSizeY - 1 && !tiles[x, y + 1].visited)
-            {
-                tiles[x, y].northCorridor = true;
-                tiles[x, y + 1].southCorridor = true;
-                toVisit.Add(tiles[x, y + 1]);
-            }
+                toVisit.Add('n', tiles[x, y + 1]);
 
             if (toVisit.Count > 0)
             {
-                toVisit.Shuffle();
+                toVisit = toVisit.OrderBy(i => Random.value).ToDictionary(item => item.Key, item => item.Value);
 
-                foreach (Tile tile in toVisit)
+                foreach (KeyValuePair<char, Tile> tile in toVisit)
                 {
-                    if (tiles[tile.x, tile.y].visited)
-                        continue;
+                    if (tiles[tile.Value.x, tile.Value.y].visited) { continue; }
                     else
-                        yield return StartCoroutine(RecursiveBacktracker(tile.x, tile.y));
+                    {
+                        switch (tile.Key)
+                        {
+                            case 'n':
+                                tiles[x, y].northCorridor = true;
+                                tiles[x, y + 1].southCorridor = true;
+                                break;
+                            case 'e':
+                                tiles[x, y].eastCorridor = true;
+                                tiles[x + 1, y].westCorridor = true;
+                                break;
+                            case 's':
+                                tiles[x, y].southCorridor = true;
+                                tiles[x, y - 1].northCorridor = true;
+                                break;
+                            case 'w':
+                                tiles[x, y].westCorridor = true;
+                                tiles[x - 1, y].eastCorridor = true;
+                                break;
+                            default:
+                                throw new System.Exception("Something has gone terribly wrong: toVisit has invalid key.");
+                        }
+                        yield return StartCoroutine(RecursiveBacktracker(tile.Value.x, tile.Value.y));
+                    }
                 }
             }
             else
@@ -124,83 +153,65 @@ namespace FallingSloth.ProceduralMazeGame
             }
 
             tiles[x, y].renderer.color = Color.white;
-            checkedCount++;
+            SetSprite(x, y);
+
+            if (delay > 0f)
+                yield return new WaitForSeconds(delay/2f);
         }
 
-        IEnumerator GenerateMazeAndAddSprites()
+        void SetSprite(int x, int y)
         {
-            yield return StartCoroutine(RecursiveBacktracker(startX, startY));
+            int s = -1;
+            
+            if (tiles[x, y].northCorridor
+                && tiles[x, y].eastCorridor
+                && tiles[x, y].southCorridor
+                && tiles[x, y].westCorridor)
+                s = 14;
+            else if (tiles[x, y].eastCorridor
+                && tiles[x, y].southCorridor
+                && tiles[x, y].westCorridor)
+                s = 13;
+            else if (tiles[x, y].northCorridor
+                && tiles[x, y].southCorridor
+                && tiles[x, y].westCorridor)
+                s = 12;
+            else if (tiles[x, y].northCorridor
+                && tiles[x, y].eastCorridor
+                && tiles[x, y].westCorridor)
+                s = 11;
+            else if (tiles[x, y].northCorridor
+                && tiles[x, y].eastCorridor
+                && tiles[x, y].southCorridor)
+                s = 10;
+            else if (tiles[x, y].southCorridor
+                && tiles[x, y].westCorridor)
+                s = 9;
+            else if (tiles[x, y].eastCorridor
+                && tiles[x, y].westCorridor)
+                s = 8;
+            else if (tiles[x, y].eastCorridor
+                && tiles[x, y].southCorridor)
+                s = 7;
+            else if (tiles[x, y].northCorridor
+                && tiles[x, y].westCorridor)
+                s = 6;
+            else if (tiles[x, y].northCorridor
+                && tiles[x, y].southCorridor)
+                s = 5;
+            else if (tiles[x, y].northCorridor
+                && tiles[x, y].eastCorridor)
+                s = 4;
+            else if (tiles[x, y].westCorridor)
+                s = 3;
+            else if (tiles[x, y].southCorridor)
+                s = 2;
+            else if (tiles[x, y].eastCorridor)
+                s = 1;
+            else if (tiles[x, y].northCorridor)
+                s = 0;
 
-            #region Set sprites
-            for (int x = 0; x < gridSizeX; x++)
-            {
-                for (int y = 0; y < gridSizeY; y++)
-                {
-                    int s = -1;
-
-                    #region Sprite selection
-                    if (tiles[x, y].northCorridor
-                        && tiles[x, y].eastCorridor
-                        && tiles[x, y].southCorridor
-                        && tiles[x, y].westCorridor)
-                        s = 14;
-                    else if (tiles[x, y].eastCorridor
-                        && tiles[x, y].southCorridor
-                        && tiles[x, y].westCorridor)
-                        s = 13;
-                    else if (tiles[x, y].northCorridor
-                        && tiles[x, y].southCorridor
-                        && tiles[x, y].westCorridor)
-                        s = 12;
-                    else if (tiles[x, y].northCorridor
-                        && tiles[x, y].eastCorridor
-                        && tiles[x, y].westCorridor)
-                        s = 11;
-                    else if (tiles[x, y].northCorridor
-                        && tiles[x, y].eastCorridor
-                        && tiles[x, y].southCorridor)
-                        s = 10;
-                    else if (tiles[x, y].southCorridor
-                        && tiles[x, y].westCorridor)
-                        s = 9;
-                    else if (tiles[x, y].eastCorridor
-                        && tiles[x, y].westCorridor)
-                        s = 8;
-                    else if (tiles[x, y].eastCorridor
-                        && tiles[x, y].southCorridor)
-                        s = 7;
-                    else if (tiles[x, y].northCorridor
-                        && tiles[x, y].westCorridor)
-                        s = 6;
-                    else if (tiles[x, y].northCorridor
-                        && tiles[x, y].southCorridor)
-                        s = 5;
-                    else if (tiles[x, y].northCorridor
-                        && tiles[x, y].eastCorridor)
-                        s = 4;
-                    else if (tiles[x, y].westCorridor)
-                        s = 3;
-                    else if (tiles[x, y].southCorridor)
-                        s = 2;
-                    else if (tiles[x, y].eastCorridor)
-                        s = 1;
-                    else if (tiles[x, y].northCorridor)
-                        s = 0;
-                    
-                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                    sb.AppendLine("Tile (" + x + "," + y + ")");
-                    sb.AppendLine("North corridor: " + tiles[x, y].northCorridor);
-                    sb.AppendLine("East corridor: " + tiles[x, y].eastCorridor);
-                    sb.AppendLine("South corridor: " + tiles[x, y].southCorridor);
-                    sb.AppendLine("West corridor: " + tiles[x, y].westCorridor);
-                    sb.AppendLine("Sprite index: " + s);
-                    Debug.Log(sb);
-                    #endregion
-
-                    tiles[x, y].renderer.sprite = tileSprites[s];
-                }
-            }
-            #endregion
+            tiles[x, y].renderer.sprite = tileSprites[s];
         }
     }
 }
