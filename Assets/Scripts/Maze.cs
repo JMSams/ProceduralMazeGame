@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
 
-namespace FallingSloth.ProceduralMazeGame
+namespace FallingSloth.ProceduralMazeGenerator
 {
-    public class Maze : MonoBehaviour
+    public partial class Maze : MonoBehaviour
     {
         Tile[,] tiles;
 
@@ -33,41 +33,25 @@ namespace FallingSloth.ProceduralMazeGame
 
         public Text delayText;
 
+        public Algorithms algorithm = Algorithms.RecursiveBacktracking;
+
         void Start()
         {
             transform.position = new Vector3(-gridSizeX / 2f + .5f, -gridSizeY / 2f - .4f);
-
-            StartCoroutine(GenerateMaze());
+            PickAlgorithm();
         }
 
-        IEnumerator GenerateMaze()
+        void PickAlgorithm()
         {
-            running = true;
-
-            if (tiles != null) ClearGrid();
-
-            tiles = new Tile[gridSizeX, gridSizeY];
-            for (int x = 0; x < gridSizeX; x++)
+            switch (algorithm)
             {
-                for (int y = 0; y < gridSizeY; y++)
-                {
-                    tiles[x, y] = Instantiate(tilePrefab, this.transform);
-                    tiles[x, y].gameObject.name = "Tile (" + x + "," + y + ")";
-                    tiles[x, y].x = x;
-                    tiles[x, y].y = y;
-                    tiles[x, y].renderer.color = defaultColour;
-                }
+                case Algorithms.RecursiveBacktracking:
+                    StartCoroutine(GenerateWithRecursiveBacktracker());
+                    break;
+                case Algorithms.Eller:
+                    StartCoroutine(GenerateWithEller());
+                    break;
             }
-
-            startX = Random.Range(0, gridSizeX);
-            startY = Random.Range(0, gridSizeY);
-            tiles[startX, startY].isStart = true;
-
-            deadEnds = new List<Tile>();
-
-            yield return StartCoroutine(RecursiveBacktracker(startX, startY));
-
-            running = false;
         }
 
         void ClearGrid()
@@ -91,83 +75,13 @@ namespace FallingSloth.ProceduralMazeGame
         {
             if (running) { Stop(); }
 
-            StartCoroutine(GenerateMaze());
+            PickAlgorithm();
         }
 
         public void ChangeDelay(float newDelay)
         {
             delay = newDelay;
             delayText.text = string.Format("Delay: {0:0.00}", newDelay);
-        }
-
-        IEnumerator RecursiveBacktracker(int x, int y)
-        {
-            if (delay > 0f)
-                yield return new WaitForSeconds(delay / 2f);
-
-            tiles[x, y].visited = true;
-
-            tiles[x, y].renderer.color = inProgressColour;
-
-            Dictionary<char, Tile> toVisit = new Dictionary<char, Tile>();
-
-            if (x > 0 && !tiles[x - 1, y].visited)
-                toVisit.Add('w', tiles[x - 1, y]);
-
-            if (x < gridSizeX - 1 && !tiles[x + 1, y].visited)
-                toVisit.Add('e', tiles[x + 1, y]);
-
-            if (y > 0 && !tiles[x, y - 1].visited)
-                toVisit.Add('s', tiles[x, y - 1]);
-            
-            if (y < gridSizeY - 1 && !tiles[x, y + 1].visited)
-                toVisit.Add('n', tiles[x, y + 1]);
-
-            if (toVisit.Count > 0)
-            {
-                toVisit = toVisit.OrderBy(i => Random.value).ToDictionary(item => item.Key, item => item.Value);
-
-                foreach (KeyValuePair<char, Tile> tile in toVisit)
-                {
-                    if (tiles[tile.Value.x, tile.Value.y].visited) { continue; }
-                    else
-                    {
-                        switch (tile.Key)
-                        {
-                            case 'n':
-                                tiles[x, y].northCorridor = true;
-                                tiles[x, y + 1].southCorridor = true;
-                                break;
-                            case 'e':
-                                tiles[x, y].eastCorridor = true;
-                                tiles[x + 1, y].westCorridor = true;
-                                break;
-                            case 's':
-                                tiles[x, y].southCorridor = true;
-                                tiles[x, y - 1].northCorridor = true;
-                                break;
-                            case 'w':
-                                tiles[x, y].westCorridor = true;
-                                tiles[x - 1, y].eastCorridor = true;
-                                break;
-                            default:
-                                throw new System.Exception("Something has gone terribly wrong: toVisit has invalid key.");
-                        }
-                        SetSprite(x, y);
-                        yield return StartCoroutine(RecursiveBacktracker(tile.Value.x, tile.Value.y));
-                    }
-                }
-            }
-            else
-            {
-                deadEnds.Add(tiles[x, y]);
-            }
-
-            tiles[x, y].renderer.color = (tiles[x,y].isStart) ? startColour : normalColour;
-            SetSprite(x, y);
-
-            if (delay > 0f)
-                yield return new WaitForSeconds(delay/2f);
         }
 
         void SetSprite(int x, int y)

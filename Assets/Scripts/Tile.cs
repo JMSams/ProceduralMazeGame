@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace FallingSloth.ProceduralMazeGame
+namespace FallingSloth.ProceduralMazeGenerator
 {
     public class Tile : MonoBehaviour
     {
