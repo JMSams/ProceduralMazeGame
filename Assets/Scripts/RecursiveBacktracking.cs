@@ -7,8 +7,6 @@ namespace FallingSloth.ProceduralMazeGenerator
 {
 	public partial class Maze
     {
-        int steps;
-
         IEnumerator GenerateWithRecursiveBacktracker()
         {
             running = true;
@@ -33,20 +31,17 @@ namespace FallingSloth.ProceduralMazeGenerator
             tiles[startX, startY].isStart = true;
 
             deadEnds = new List<Tile>();
-
-            steps = -1;
+            
             yield return StartCoroutine(RecursiveBacktracker(startX, startY));
 
             running = false;
         }
 
-        IEnumerator RecursiveBacktracker(int x, int y)
+        IEnumerator RecursiveBacktracker(int x, int y, float cullPercent = 0f)
         {
             if (delay > 0f)
                 yield return new WaitForSeconds(delay / 2f);
-
-            steps++;
-
+            
             tiles[x, y].visited = true;
 
             tiles[x, y].renderer.color = inProgressColour;
@@ -103,13 +98,10 @@ namespace FallingSloth.ProceduralMazeGenerator
             else
             {
                 deadEnds.Add(tiles[x, y]);
-                stepsToDeadEnd = steps;
             }
 
-            tiles[x, y].renderer.color = (tiles[x, y].isStart) ? startColour : normalColour;
+            tiles[x, y].renderer.color = normalColour;
             SetSprite(x, y);
-		
-            steps--;
 
             if (delay > 0f)
                 yield return new WaitForSeconds(delay / 2f);

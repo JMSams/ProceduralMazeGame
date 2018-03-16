@@ -20,6 +20,11 @@ namespace FallingSloth.ProceduralMazeGenerator
         public Color inProgressColour = Color.magenta;
         public Color defaultColour = Color.grey;
 
+        public CullModes cullMode = CullModes.None;
+
+        [Range(0.0f, 1.0f)]
+        public float cullPercentage = 0.5f;
+
         [Range(3, 64)]
         public int gridSizeX, gridSizeY;
 
@@ -39,6 +44,7 @@ namespace FallingSloth.ProceduralMazeGenerator
         {
             transform.position = new Vector3(-gridSizeX / 2f + .5f, -gridSizeY / 2f - .4f);
             PickAlgorithm();
+            CullDeadEnds();
         }
 
         void PickAlgorithm()
@@ -137,6 +143,13 @@ namespace FallingSloth.ProceduralMazeGenerator
                 s = 0;
 
             tiles[x, y].renderer.sprite = tileSprites[s];
+        }
+
+        public enum CullModes
+        {
+            None,
+            Braid,
+            Remove
         }
     }
 }
