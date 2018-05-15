@@ -7,10 +7,13 @@ namespace FallingSloth.ProceduralMazeGenerator
 {
     public class Maze : SingletonBehaviour<Maze>
     {
-        [Range(3, 100)]
+        public bool showWorking = false;
+
+        [Range(3, 200)]
         public int width = 7, height = 7;
 
         #region Sprites
+        public Sprite BlankSprite;
         public Sprite NorthSprite;
         public Sprite EastSprite;
         public Sprite SouthSprite;
@@ -43,7 +46,7 @@ namespace FallingSloth.ProceduralMazeGenerator
             }
             deadEnds = new List<Vector2Int>();
 
-            Tile[,] maze = new Tile[width, height];
+            mazeTiles = new Tile[width, height];
 
             GameObject temp;
             for (int x = 0; x < width; x++)
@@ -52,22 +55,64 @@ namespace FallingSloth.ProceduralMazeGenerator
                 {
                     temp = new GameObject("Tile[" + x + "," + y + "]");
                     temp.AddComponent<SpriteRenderer>();
-                    maze[x, y] = temp.AddComponent<Tile>();
-                    maze[x, y].transform.parent = this.transform;
-                    maze[x, y].x = x;
-                    maze[x, y].y = y;
+                    mazeTiles[x, y] = temp.AddComponent<Tile>();
+                    mazeTiles[x, y].transform.parent = this.transform;
+                    mazeTiles[x, y].x = x;
+                    mazeTiles[x, y].y = y;
                 }
             }
 
-            maze = GenerateMaze(Random.Range(0, width),
-                                Random.Range(0, height),
-                                maze);
-
-            mazeTiles = maze;
+            if (showWorking)
+                StartCoroutine(GenerateMazeWithDelay(Random.Range(0, width),
+                                                     Random.Range(0, height)));
+            else
+                GenerateMazeImediate(Random.Range(0, width),
+                                     Random.Range(0, height));
         }
-        Tile[,] GenerateMaze(int x, int y, Tile[,] maze)
+
+        void GenerateMazeImediate(int x, int y)
         {
-            maze[x, y].visited = true;
+            mazeTiles[x, y].visited = true;
+
+            List<Directions> directions = new List<Directions>();
+            if (y > 0) directions.Add(Directions.South);
+            if (y < height - 1) directions.Add(Directions.North);
+            if (x > 0) directions.Add(Directions.West);
+            if (x < width - 1) directions.Add(Directions.East);
+            directions = directions.Shuffle();
+
+            foreach (Directions direction in directions)
+            {
+                int xOffset = 0, yOffset = 0;
+                switch (direction)
+                {
+                    case Directions.North:
+                        yOffset = 1;
+                        break;
+                    case Directions.East:
+                        xOffset = 1;
+                        break;
+                    case Directions.South:
+                        yOffset = -1;
+                        break;
+                    case Directions.West:
+                        xOffset = -1;
+                        break;
+                }
+                if (!mazeTiles[x + xOffset, y + yOffset].visited)
+                {
+                    mazeTiles[x, y][direction] = true;
+                    mazeTiles[x + xOffset, y + yOffset][Utility.OppositeDirection(direction)] = true;
+                    GenerateMazeImediate(x + xOffset, y + yOffset);
+                }
+            }
+        }
+
+        IEnumerator GenerateMazeWithDelay(int x, int y)
+        {
+            yield return new WaitForSeconds(0.025f);
+
+            mazeTiles[x, y].visited = true;
 
             List<Directions> directions = new List<Directions>();
             if (y > 0)          directions.Add(Directions.South);
@@ -94,80 +139,25 @@ namespace FallingSloth.ProceduralMazeGenerator
                         xOffset = -1;
                         break;
                 }
-                if (!maze[x + xOffset, y + yOffset].visited)
+                if (!mazeTiles[x + xOffset, y + yOffset].visited)
                 {
-                    maze[x, y][direction] = true;
-                    maze[x + xOffset, y + yOffset][Utility.OppositeDirection(direction)] = true;
-                    maze = GenerateMaze(x + xOffset, y + yOffset, maze);
+                    mazeTiles[x, y][direction] = true;
+                    mazeTiles[x + xOffset, y + yOffset].renderer.color = Color.red;
+                    mazeTiles[x + xOffset, y + yOffset][Utility.OppositeDirection(direction)] = true;
+                    yield return StartCoroutine(GenerateMazeWithDelay(x + xOffset, y + yOffset));
                 }
             }
 
-            byte corridors = 0;
-            if (maze[x, y][Directions.North])
-                corridors += (byte)Directions.North;
-            if (maze[x, y][Directions.East])
-                corridors += (byte)Directions.East;
-            if (maze[x, y][Directions.South])
-                corridors += (byte)Directions.South;
-            if (maze[x, y][Directions.West])
-                corridors += (byte)Directions.West;
+            mazeTiles[x, y].renderer.color = Color.white;
+            yield return new WaitForSeconds(0.025f);
+        }
 
-            #region Sprite Selection
-            switch (corridors)
-            {
-                case 1:
-                    maze[x, y].renderer.sprite = NorthSprite;
-                    deadEnds.Add(new Vector2Int(x, y));
-                    break;
-                case 2:
-                    maze[x, y].renderer.sprite = EastSprite;
-                    deadEnds.Add(new Vector2Int(x, y));
-                    break;
-                case 3:
-                    maze[x, y].renderer.sprite = NorthEastSprite;
-                    break;
-                case 4:
-                    maze[x, y].renderer.sprite = SouthSprite;
-                    deadEnds.Add(new Vector2Int(x, y));
-                    break;
-                case 5:
-                    maze[x, y].renderer.sprite = NorthSouthSprite;
-                    break;
-                case 6:
-                    maze[x, y].renderer.sprite = EastSouthSprite;
-                    break;
-                case 7:
-                    maze[x, y].renderer.sprite = NorthEastSouthSprite;
-                    break;
-                case 8:
-                    maze[x, y].renderer.sprite = WestSprite;
-                    deadEnds.Add(new Vector2Int(x, y));
-                    break;
-                case 9:
-                    maze[x, y].renderer.sprite = NorthWestSprite;
-                    break;
-                case 10:
-                    maze[x, y].renderer.sprite = EastWestSprite;
-                    break;
-                case 11:
-                    maze[x, y].renderer.sprite = NorthEastWestSprite;
-                    break;
-                case 12:
-                    maze[x, y].renderer.sprite = SouthWestSprite;
-                    break;
-                case 13:
-                    maze[x, y].renderer.sprite = NorthSouthSprite;
-                    break;
-                case 14:
-                    maze[x, y].renderer.sprite = EastSouthWestSprite;
-                    break;
-                case 15:
-                    maze[x, y].renderer.sprite = NorthEastSouthWestSprite;
-                    break;
-            }
-            #endregion
+        void GenerateNodeMap()
+        {
+            if (mazeTiles == null)
+                Debug.LogError("Attempting to generate nodes for a null maze!");
 
-            return maze;
+
         }
     }
 }

@@ -11,55 +11,25 @@ namespace FallingSloth.ProceduralMazeGenerator
         [HideInInspector]
         public bool visited;
 
-        [HideInInspector]
-        public bool northCorridor;
-
-        [HideInInspector]
-        public bool eastCorridor;
-
-        [HideInInspector]
-        public bool southCorridor;
-
-        [HideInInspector]
-        public bool westCorridor;
+        Directions _corridors;
+        public Directions corridors
+        {
+            get { return _corridors; }
+            set { _corridors = value; SetSprite(); }
+        }
 
         public bool this[Directions direction]
         {
             get
             {
-                switch (direction)
-                {
-                    case Directions.North:
-                        return northCorridor;
-                    case Directions.East:
-                        return eastCorridor;
-                    case Directions.South:
-                        return southCorridor;
-                    case Directions.West:
-                        return westCorridor;
-                    default:
-                        throw new System.ArgumentOutOfRangeException();
-                }
+                return (corridors & direction) == direction;
             }
             set
             {
-                switch (direction)
-                {
-                    case Directions.North:
-                        northCorridor = value;
-                        break;
-                    case Directions.East:
-                        eastCorridor = value;
-                        break;
-                    case Directions.South:
-                        southCorridor = value;
-                        break;
-                    case Directions.West:
-                        westCorridor = value;
-                        break;
-                    default:
-                        throw new System.ArgumentOutOfRangeException();
-                }
+                if (value)
+                    corridors |= direction;
+                else
+                    corridors = corridors & ~direction;
             }
         }
 
@@ -94,6 +64,61 @@ namespace FallingSloth.ProceduralMazeGenerator
         void Awake()
         {
             renderer = GetComponent<SpriteRenderer>();
+        }
+
+        void SetSprite()
+        {
+            switch (corridors)
+            {
+                case Directions.None:
+                    renderer.sprite = Maze.Instance.BlankSprite;
+                    break;
+                case Directions.North:
+                    renderer.sprite = Maze.Instance.NorthSprite;
+                    break;
+                case Directions.East:
+                    renderer.sprite = Maze.Instance.EastSprite;
+                    break;
+                case Directions.North | Directions.East:
+                    renderer.sprite = Maze.Instance.NorthEastSprite;
+                    break;
+                case Directions.South:
+                    renderer.sprite = Maze.Instance.SouthSprite;
+                    break;
+                case Directions.North | Directions.South:
+                    renderer.sprite = Maze.Instance.NorthSouthSprite;
+                    break;
+                case Directions.East | Directions.South:
+                    renderer.sprite = Maze.Instance.EastSouthSprite;
+                    break;
+                case Directions.North | Directions.East | Directions.South:
+                    renderer.sprite = Maze.Instance.NorthEastSouthSprite;
+                    break;
+                case Directions.West:
+                    renderer.sprite = Maze.Instance.WestSprite;
+                    break;
+                case Directions.North | Directions.West:
+                    renderer.sprite = Maze.Instance.NorthWestSprite;
+                    break;
+                case Directions.East | Directions.West:
+                    renderer.sprite = Maze.Instance.EastWestSprite;
+                    break;
+                case Directions.North | Directions.East | Directions.West:
+                    renderer.sprite = Maze.Instance.NorthEastWestSprite;
+                    break;
+                case Directions.South | Directions.West:
+                    renderer.sprite = Maze.Instance.SouthWestSprite;
+                    break;
+                case Directions.North | Directions.South | Directions.West:
+                    renderer.sprite = Maze.Instance.NorthSouthWestSprite;
+                    break;
+                case Directions.East | Directions.South | Directions.West:
+                    renderer.sprite = Maze.Instance.EastSouthWestSprite;
+                    break;
+                case Directions.North | Directions.East | Directions.South | Directions.West:
+                    renderer.sprite = Maze.Instance.NorthEastSouthWestSprite;
+                    break;
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ TextureImporter:
     21300022: South
     21300024: East
     21300026: West
-    21300028: Blank
+    21300028: None
     21300030: North
   externalObjects: {}
   serializedVersion: 5
@@ -411,7 +411,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Blank
+      name: None
       rect:
         serializedVersion: 2
         x: 32
