@@ -59,6 +59,7 @@ namespace FallingSloth.ProceduralMazeGenerator
                     mazeTiles[x, y].transform.parent = this.transform;
                     mazeTiles[x, y].x = x;
                     mazeTiles[x, y].y = y;
+                    mazeTiles[x, y].renderer.color = Color.red;
                 }
             }
 
@@ -106,6 +107,8 @@ namespace FallingSloth.ProceduralMazeGenerator
                     GenerateMazeImediate(x + xOffset, y + yOffset);
                 }
             }
+
+            mazeTiles[x, y].renderer.color = Color.white;
         }
 
         IEnumerator GenerateMazeWithDelay(int x, int y)
@@ -142,7 +145,6 @@ namespace FallingSloth.ProceduralMazeGenerator
                 if (!mazeTiles[x + xOffset, y + yOffset].visited)
                 {
                     mazeTiles[x, y][direction] = true;
-                    mazeTiles[x + xOffset, y + yOffset].renderer.color = Color.red;
                     mazeTiles[x + xOffset, y + yOffset][Utility.OppositeDirection(direction)] = true;
                     yield return StartCoroutine(GenerateMazeWithDelay(x + xOffset, y + yOffset));
                 }
