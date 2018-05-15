@@ -23,6 +23,46 @@ namespace FallingSloth.ProceduralMazeGenerator
         [HideInInspector]
         public bool westCorridor;
 
+        public bool this[Directions direction]
+        {
+            get
+            {
+                switch (direction)
+                {
+                    case Directions.North:
+                        return northCorridor;
+                    case Directions.East:
+                        return eastCorridor;
+                    case Directions.South:
+                        return southCorridor;
+                    case Directions.West:
+                        return westCorridor;
+                    default:
+                        throw new System.ArgumentOutOfRangeException();
+                }
+            }
+            set
+            {
+                switch (direction)
+                {
+                    case Directions.North:
+                        northCorridor = value;
+                        break;
+                    case Directions.East:
+                        eastCorridor = value;
+                        break;
+                    case Directions.South:
+                        southCorridor = value;
+                        break;
+                    case Directions.West:
+                        westCorridor = value;
+                        break;
+                    default:
+                        throw new System.ArgumentOutOfRangeException();
+                }
+            }
+        }
+
         [HideInInspector]
         public bool isStart;
 

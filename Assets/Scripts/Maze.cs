@@ -2,154 +2,172 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.UI;
 
 namespace FallingSloth.ProceduralMazeGenerator
 {
-    public partial class Maze : MonoBehaviour
+    public class Maze : SingletonBehaviour<Maze>
     {
-        Tile[,] tiles;
+        [Range(3, 100)]
+        public int width = 7, height = 7;
 
-        List<Tile> deadEnds;
+        #region Sprites
+        public Sprite NorthSprite;
+        public Sprite EastSprite;
+        public Sprite SouthSprite;
+        public Sprite WestSprite;
+        public Sprite NorthSouthSprite;
+        public Sprite EastWestSprite;
+        public Sprite NorthEastSprite;
+        public Sprite EastSouthSprite;
+        public Sprite SouthWestSprite;
+        public Sprite NorthWestSprite;
+        public Sprite NorthEastSouthSprite;
+        public Sprite NorthSouthWestSprite;
+        public Sprite NorthEastWestSprite;
+        public Sprite EastSouthWestSprite;
+        public Sprite NorthEastSouthWestSprite;
+        #endregion
 
-        int startX, startY, endX, endY;
+        public Tile[,] mazeTiles;
 
-        public Color startColour = Color.red;
-        public Color endColour = Color.green;
-        public Color normalColour = Color.white;
-        public Color inProgressColour = Color.magenta;
-        public Color defaultColour = Color.grey;
+        [HideInInspector]
+        public List<Vector2Int> deadEnds;
 
-        public CullModes cullMode = CullModes.None;
-
-        [Range(0.0f, 1.0f)]
-        public float cullPercentage = 0.5f;
-
-        [Range(3, 64)]
-        public int gridSizeX, gridSizeY;
-
-        public Tile tilePrefab;
-
-        public List<Sprite> tileSprites;
-
-        public float delay = 0.5f;
-
-        bool running = false;
-
-        public Text delayText;
-
-        public Algorithms algorithm = Algorithms.RecursiveBacktracking;
-
-        void Start()
+        public void GenerateMaze()
         {
-            transform.position = new Vector3(-gridSizeX / 2f + .5f, -gridSizeY / 2f - .4f);
-            PickAlgorithm();
-            CullDeadEnds();
-        }
-
-        void PickAlgorithm()
-        {
-            switch (algorithm)
+            if (mazeTiles != null)
             {
-                case Algorithms.RecursiveBacktracking:
-                    StartCoroutine(GenerateWithRecursiveBacktracker());
-                    break;
-                case Algorithms.Eller:
-                    StartCoroutine(GenerateWithEller());
-                    break;
+                for (int x = 0; x < mazeTiles.GetLength(0); x++)
+                    for (int y = 0; y < mazeTiles.GetLength(1); y++)
+                        Destroy(mazeTiles[x, y].gameObject);
             }
-        }
+            deadEnds = new List<Vector2Int>();
 
-        void ClearGrid()
-        {
-            for (int x = 0; x < gridSizeX; x++)
+            Tile[,] maze = new Tile[width, height];
+
+            GameObject temp;
+            for (int x = 0; x < width; x++)
             {
-                for (int y = 0; y < gridSizeY; y++)
+                for (int y = 0; y < height; y++)
                 {
-                    Destroy(tiles[x, y].gameObject);
+                    temp = new GameObject("Tile[" + x + "," + y + "]");
+                    temp.AddComponent<SpriteRenderer>();
+                    maze[x, y] = temp.AddComponent<Tile>();
+                    maze[x, y].transform.parent = this.transform;
+                    maze[x, y].x = x;
+                    maze[x, y].y = y;
                 }
             }
+
+            maze = GenerateMaze(Random.Range(0, width),
+                                Random.Range(0, height),
+                                maze);
+
+            mazeTiles = maze;
         }
-        
-        public void Stop()
+        Tile[,] GenerateMaze(int x, int y, Tile[,] maze)
         {
-            StopAllCoroutines();
-            running = false;
-        }
+            maze[x, y].visited = true;
 
-        public void Restart()
-        {
-            if (running) { Stop(); }
+            List<Directions> directions = new List<Directions>();
+            if (y > 0)          directions.Add(Directions.South);
+            if (y < height - 1) directions.Add(Directions.North);
+            if (x > 0)          directions.Add(Directions.West);
+            if (x < width - 1)  directions.Add(Directions.East);
+            directions = directions.Shuffle();
 
-            PickAlgorithm();
-        }
+            foreach (Directions direction in directions)
+            {
+                int xOffset = 0, yOffset = 0;
+                switch (direction)
+                {
+                    case Directions.North:
+                        yOffset = 1;
+                        break;
+                    case Directions.East:
+                        xOffset = 1;
+                        break;
+                    case Directions.South:
+                        yOffset = -1;
+                        break;
+                    case Directions.West:
+                        xOffset = -1;
+                        break;
+                }
+                if (!maze[x + xOffset, y + yOffset].visited)
+                {
+                    maze[x, y][direction] = true;
+                    maze[x + xOffset, y + yOffset][Utility.OppositeDirection(direction)] = true;
+                    maze = GenerateMaze(x + xOffset, y + yOffset, maze);
+                }
+            }
 
-        public void ChangeDelay(float newDelay)
-        {
-            delay = newDelay;
-            delayText.text = string.Format("Delay: {0:0.00}", newDelay);
-        }
+            byte corridors = 0;
+            if (maze[x, y][Directions.North])
+                corridors += (byte)Directions.North;
+            if (maze[x, y][Directions.East])
+                corridors += (byte)Directions.East;
+            if (maze[x, y][Directions.South])
+                corridors += (byte)Directions.South;
+            if (maze[x, y][Directions.West])
+                corridors += (byte)Directions.West;
 
-        void SetSprite(int x, int y)
-        {
-            int s = -1;
-            
-            if (tiles[x, y].northCorridor
-                && tiles[x, y].eastCorridor
-                && tiles[x, y].southCorridor
-                && tiles[x, y].westCorridor)
-                s = 14;
-            else if (tiles[x, y].eastCorridor
-                && tiles[x, y].southCorridor
-                && tiles[x, y].westCorridor)
-                s = 13;
-            else if (tiles[x, y].northCorridor
-                && tiles[x, y].southCorridor
-                && tiles[x, y].westCorridor)
-                s = 12;
-            else if (tiles[x, y].northCorridor
-                && tiles[x, y].eastCorridor
-                && tiles[x, y].westCorridor)
-                s = 11;
-            else if (tiles[x, y].northCorridor
-                && tiles[x, y].eastCorridor
-                && tiles[x, y].southCorridor)
-                s = 10;
-            else if (tiles[x, y].southCorridor
-                && tiles[x, y].westCorridor)
-                s = 9;
-            else if (tiles[x, y].eastCorridor
-                && tiles[x, y].westCorridor)
-                s = 8;
-            else if (tiles[x, y].eastCorridor
-                && tiles[x, y].southCorridor)
-                s = 7;
-            else if (tiles[x, y].northCorridor
-                && tiles[x, y].westCorridor)
-                s = 6;
-            else if (tiles[x, y].northCorridor
-                && tiles[x, y].southCorridor)
-                s = 5;
-            else if (tiles[x, y].northCorridor
-                && tiles[x, y].eastCorridor)
-                s = 4;
-            else if (tiles[x, y].westCorridor)
-                s = 3;
-            else if (tiles[x, y].southCorridor)
-                s = 2;
-            else if (tiles[x, y].eastCorridor)
-                s = 1;
-            else if (tiles[x, y].northCorridor)
-                s = 0;
+            #region Sprite Selection
+            switch (corridors)
+            {
+                case 1:
+                    maze[x, y].renderer.sprite = NorthSprite;
+                    deadEnds.Add(new Vector2Int(x, y));
+                    break;
+                case 2:
+                    maze[x, y].renderer.sprite = EastSprite;
+                    deadEnds.Add(new Vector2Int(x, y));
+                    break;
+                case 3:
+                    maze[x, y].renderer.sprite = NorthEastSprite;
+                    break;
+                case 4:
+                    maze[x, y].renderer.sprite = SouthSprite;
+                    deadEnds.Add(new Vector2Int(x, y));
+                    break;
+                case 5:
+                    maze[x, y].renderer.sprite = NorthSouthSprite;
+                    break;
+                case 6:
+                    maze[x, y].renderer.sprite = EastSouthSprite;
+                    break;
+                case 7:
+                    maze[x, y].renderer.sprite = NorthEastSouthSprite;
+                    break;
+                case 8:
+                    maze[x, y].renderer.sprite = WestSprite;
+                    deadEnds.Add(new Vector2Int(x, y));
+                    break;
+                case 9:
+                    maze[x, y].renderer.sprite = NorthWestSprite;
+                    break;
+                case 10:
+                    maze[x, y].renderer.sprite = EastWestSprite;
+                    break;
+                case 11:
+                    maze[x, y].renderer.sprite = NorthEastWestSprite;
+                    break;
+                case 12:
+                    maze[x, y].renderer.sprite = SouthWestSprite;
+                    break;
+                case 13:
+                    maze[x, y].renderer.sprite = NorthSouthSprite;
+                    break;
+                case 14:
+                    maze[x, y].renderer.sprite = EastSouthWestSprite;
+                    break;
+                case 15:
+                    maze[x, y].renderer.sprite = NorthEastSouthWestSprite;
+                    break;
+            }
+            #endregion
 
-            tiles[x, y].renderer.sprite = tileSprites[s];
-        }
-
-        public enum CullModes
-        {
-            None,
-            Braid,
-            Remove
+            return maze;
         }
     }
 }
