@@ -9,8 +9,12 @@ namespace FallingSloth.ProceduralMazeGenerator
     {
         public bool showWorking = false;
 
+        public bool autoRegenerate = false;
+
         [Range(3, 200)]
         public int width = 7, height = 7;
+
+        int tilesToGo = -1;
 
         #region Sprites
         public Sprite BlankSprite;
@@ -33,6 +37,12 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         public Tile[,] mazeTiles;
 
+        public Tile this[int x, int y]
+        {
+            get { return mazeTiles[x, y]; }
+            set { mazeTiles[x, y] = value; }
+        }
+
         [HideInInspector]
         public List<Vector2Int> deadEnds;
 
@@ -47,6 +57,7 @@ namespace FallingSloth.ProceduralMazeGenerator
             deadEnds = new List<Vector2Int>();
 
             mazeTiles = new Tile[width, height];
+            tilesToGo = width * height;
 
             GameObject temp;
             for (int x = 0; x < width; x++)
@@ -109,6 +120,10 @@ namespace FallingSloth.ProceduralMazeGenerator
             }
 
             mazeTiles[x, y].renderer.color = Color.white;
+
+            tilesToGo--;
+            if (tilesToGo <= 0)
+                StartCoroutine(AutoRegenerate());
         }
 
         IEnumerator GenerateMazeWithDelay(int x, int y)
@@ -151,15 +166,19 @@ namespace FallingSloth.ProceduralMazeGenerator
             }
 
             mazeTiles[x, y].renderer.color = Color.white;
-            yield return new WaitForSeconds(0.025f);
+
+            tilesToGo--;
+            if (tilesToGo <= 0)
+                StartCoroutine(AutoRegenerate());
+            else
+                yield return new WaitForSeconds(0.025f);
         }
 
-        void GenerateNodeMap()
+        IEnumerator AutoRegenerate()
         {
-            if (mazeTiles == null)
-                Debug.LogError("Attempting to generate nodes for a null maze!");
+            yield return new WaitForSeconds(5f);
 
-
+            GenerateMaze();
         }
     }
 }
