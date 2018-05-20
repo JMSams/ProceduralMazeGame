@@ -1,15 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace FallingSloth.ProceduralMazeGenerator
 {
     public class Tile : MonoBehaviour
     {
+        public List<Sprite> sprites;
+
+        [HideInInspector]
+        public Tile[,] parentArray;
+
         [HideInInspector]
         new public SpriteRenderer renderer;
 
         [HideInInspector]
-        public bool visited;
+        public TileAvailability availability = TileAvailability.Empty;
 
         Directions _corridors;
         public Directions corridors
@@ -71,52 +76,73 @@ namespace FallingSloth.ProceduralMazeGenerator
             switch (corridors)
             {
                 case Directions.None:
-                    renderer.sprite = Maze.Instance.BlankSprite;
+                    renderer.sprite = sprites[27];
                     break;
                 case Directions.North:
-                    renderer.sprite = Maze.Instance.NorthSprite;
+                    renderer.sprite = sprites[19];
                     break;
                 case Directions.East:
-                    renderer.sprite = Maze.Instance.EastSprite;
+                    renderer.sprite = sprites[24];
                     break;
                 case Directions.North | Directions.East:
-                    renderer.sprite = Maze.Instance.NorthEastSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[16];
+                    else if (availability == TileAvailability.Room) renderer.sprite = sprites[20];
                     break;
                 case Directions.South:
-                    renderer.sprite = Maze.Instance.SouthSprite;
+                    renderer.sprite = sprites[3];
                     break;
                 case Directions.North | Directions.South:
-                    renderer.sprite = Maze.Instance.NorthSouthSprite;
+                    renderer.sprite = sprites[11];
                     break;
                 case Directions.East | Directions.South:
-                    renderer.sprite = Maze.Instance.EastSouthSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[0];
+                    else if (availability == TileAvailability.Room) renderer.sprite = sprites[4];
                     break;
                 case Directions.North | Directions.East | Directions.South:
-                    renderer.sprite = Maze.Instance.NorthEastSouthSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[8];
+                    else if (availability == TileAvailability.Room) renderer.sprite = sprites[12];
                     break;
                 case Directions.West:
-                    renderer.sprite = Maze.Instance.WestSprite;
+                    renderer.sprite = sprites[26];
                     break;
                 case Directions.North | Directions.West:
-                    renderer.sprite = Maze.Instance.NorthWestSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[18];
+                    else if (availability == TileAvailability.Room) renderer.sprite = sprites[22];
                     break;
                 case Directions.East | Directions.West:
-                    renderer.sprite = Maze.Instance.EastWestSprite;
+                    renderer.sprite = sprites[25];
                     break;
                 case Directions.North | Directions.East | Directions.West:
-                    renderer.sprite = Maze.Instance.NorthEastWestSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[17];
+                    else if (availability == TileAvailability.Room) renderer.sprite = sprites[21];
                     break;
                 case Directions.South | Directions.West:
-                    renderer.sprite = Maze.Instance.SouthWestSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[2];
+                    else if (availability == TileAvailability.Room) renderer.sprite = sprites[6];
                     break;
                 case Directions.North | Directions.South | Directions.West:
-                    renderer.sprite = Maze.Instance.NorthSouthWestSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[10];
+                    else if (availability == TileAvailability.Room) renderer.sprite = sprites[14];
                     break;
                 case Directions.East | Directions.South | Directions.West:
-                    renderer.sprite = Maze.Instance.EastSouthWestSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[1];
+                    else if (availability == TileAvailability.Room) renderer.sprite = sprites[5];
                     break;
                 case Directions.North | Directions.East | Directions.South | Directions.West:
-                    renderer.sprite = Maze.Instance.NorthEastSouthWestSprite;
+                    if (availability == TileAvailability.Maze) renderer.sprite = sprites[9];
+                    else if (availability == TileAvailability.Room)
+                    {
+                        if (y > 0 && parentArray[x, y - 1].availability == TileAvailability.Maze)
+                            renderer.sprite = sprites[7];
+                        else if (y < parentArray.GetLength(1) - 1 && parentArray[x, y + 1].availability == TileAvailability.Maze)
+                            renderer.sprite = sprites[15];
+                        else if (x > 0 && parentArray[x - 1, y].availability == TileAvailability.Maze)
+                            renderer.sprite = sprites[29];
+                        else if (x < parentArray.GetLength(0) - 1 && parentArray[x + 1, y].availability == TileAvailability.Maze)
+                            renderer.sprite = sprites[28];
+                        else
+                            renderer.sprite = sprites[13];
+                    }
                     break;
             }
         }

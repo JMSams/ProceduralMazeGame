@@ -281,13 +281,61 @@ RectTransform:
   m_Children:
   - {fileID: 1110322023}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &387144181
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 387144183}
+  - component: {fileID: 387144182}
+  m_Layer: 0
+  m_Name: Dungeon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &387144182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 387144181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aeda395c99f11543a1680b72b5d181d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 57
+  height: 32
+  minRoomSize: 3
+  maxRoomSize: 12
+  minRoomCount: 10
+  maxRoomCount: 30
+  tilePrefab: {fileID: 114543085451310182, guid: 10ce702d61884154493ecb4704947287,
+    type: 2}
+--- !u!4 &387144183
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 387144181}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -12.5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &858206732
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,7 +396,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1110322022
 GameObject:
@@ -425,8 +473,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1217648254}
-        m_MethodName: GenerateMaze
+      - m_Target: {fileID: 387144182}
+        m_MethodName: GenerateDungeon
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -486,7 +534,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1217648254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -500,30 +548,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   persistent: 0
   showWorking: 1
-  autoRegenerate: 1
   width: 57
   height: 32
-  BlankSprite: {fileID: 21300028, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  NorthSprite: {fileID: 21300030, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  EastSprite: {fileID: 21300024, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  SouthSprite: {fileID: 21300022, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  WestSprite: {fileID: 21300026, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  NorthSouthSprite: {fileID: 21300006, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  EastWestSprite: {fileID: 21300014, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  NorthEastSprite: {fileID: 21300016, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  EastSouthSprite: {fileID: 21300000, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  SouthWestSprite: {fileID: 21300004, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  NorthWestSprite: {fileID: 21300020, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
-  NorthEastSouthSprite: {fileID: 21300008, guid: 71039b75ca5f3f84c809ab02bdc5cd64,
-    type: 3}
-  NorthSouthWestSprite: {fileID: 21300012, guid: 71039b75ca5f3f84c809ab02bdc5cd64,
-    type: 3}
-  NorthEastWestSprite: {fileID: 21300018, guid: 71039b75ca5f3f84c809ab02bdc5cd64,
-    type: 3}
-  EastSouthWestSprite: {fileID: 21300002, guid: 71039b75ca5f3f84c809ab02bdc5cd64,
-    type: 3}
-  NorthEastSouthWestSprite: {fileID: 21300010, guid: 71039b75ca5f3f84c809ab02bdc5cd64,
-    type: 3}
+  tilePrefab: {fileID: 0}
   deadEnds: []
 --- !u!4 &1217648255
 Transform:
@@ -536,5 +563,5 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

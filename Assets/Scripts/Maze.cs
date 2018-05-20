@@ -8,32 +8,11 @@ namespace FallingSloth.ProceduralMazeGenerator
     public class Maze : SingletonBehaviour<Maze>
     {
         public bool showWorking = false;
-
-        public bool autoRegenerate = false;
-
+        
         [Range(3, 200)]
         public int width = 7, height = 7;
 
-        int tilesToGo = -1;
-
-        #region Sprites
-        public Sprite BlankSprite;
-        public Sprite NorthSprite;
-        public Sprite EastSprite;
-        public Sprite SouthSprite;
-        public Sprite WestSprite;
-        public Sprite NorthSouthSprite;
-        public Sprite EastWestSprite;
-        public Sprite NorthEastSprite;
-        public Sprite EastSouthSprite;
-        public Sprite SouthWestSprite;
-        public Sprite NorthWestSprite;
-        public Sprite NorthEastSouthSprite;
-        public Sprite NorthSouthWestSprite;
-        public Sprite NorthEastWestSprite;
-        public Sprite EastSouthWestSprite;
-        public Sprite NorthEastSouthWestSprite;
-        #endregion
+        public Tile tilePrefab;
 
         public Tile[,] mazeTiles;
 
@@ -57,20 +36,15 @@ namespace FallingSloth.ProceduralMazeGenerator
             deadEnds = new List<Vector2Int>();
 
             mazeTiles = new Tile[width, height];
-            tilesToGo = width * height;
-
-            GameObject temp;
+            
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    temp = new GameObject("Tile[" + x + "," + y + "]");
-                    temp.AddComponent<SpriteRenderer>();
-                    mazeTiles[x, y] = temp.AddComponent<Tile>();
-                    mazeTiles[x, y].transform.parent = this.transform;
+                    mazeTiles[x, y] = Instantiate(tilePrefab, this.transform);
                     mazeTiles[x, y].x = x;
                     mazeTiles[x, y].y = y;
-                    mazeTiles[x, y].renderer.color = Color.red;
+                    mazeTiles[x, y].parentArray = mazeTiles;
                 }
             }
 
@@ -84,7 +58,7 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         void GenerateMazeImediate(int x, int y)
         {
-            mazeTiles[x, y].visited = true;
+            mazeTiles[x, y].availability = TileAvailability.Maze;
 
             List<Directions> directions = new List<Directions>();
             if (y > 0) directions.Add(Directions.South);
@@ -111,26 +85,20 @@ namespace FallingSloth.ProceduralMazeGenerator
                         xOffset = -1;
                         break;
                 }
-                if (!mazeTiles[x + xOffset, y + yOffset].visited)
+                if (mazeTiles[x + xOffset, y + yOffset].availability == TileAvailability.Empty)
                 {
                     mazeTiles[x, y][direction] = true;
                     mazeTiles[x + xOffset, y + yOffset][Utility.OppositeDirection(direction)] = true;
                     GenerateMazeImediate(x + xOffset, y + yOffset);
                 }
             }
-
-            mazeTiles[x, y].renderer.color = Color.white;
-
-            tilesToGo--;
-            if (tilesToGo <= 0)
-                StartCoroutine(AutoRegenerate());
         }
 
         IEnumerator GenerateMazeWithDelay(int x, int y)
         {
             yield return new WaitForSeconds(0.025f);
 
-            mazeTiles[x, y].visited = true;
+            mazeTiles[x, y].availability = TileAvailability.Maze;
 
             List<Directions> directions = new List<Directions>();
             if (y > 0)          directions.Add(Directions.South);
@@ -157,28 +125,17 @@ namespace FallingSloth.ProceduralMazeGenerator
                         xOffset = -1;
                         break;
                 }
-                if (!mazeTiles[x + xOffset, y + yOffset].visited)
+                if (mazeTiles[x + xOffset, y + yOffset].availability == TileAvailability.Empty)
                 {
                     mazeTiles[x, y][direction] = true;
                     mazeTiles[x + xOffset, y + yOffset][Utility.OppositeDirection(direction)] = true;
                     yield return StartCoroutine(GenerateMazeWithDelay(x + xOffset, y + yOffset));
                 }
             }
-
-            mazeTiles[x, y].renderer.color = Color.white;
-
-            tilesToGo--;
-            if (tilesToGo <= 0)
-                StartCoroutine(AutoRegenerate());
-            else
-                yield return new WaitForSeconds(0.025f);
+            
+            yield return new WaitForSeconds(0.025f);
         }
 
-        IEnumerator AutoRegenerate()
-        {
-            yield return new WaitForSeconds(5f);
 
-            GenerateMaze();
-        }
     }
 }
