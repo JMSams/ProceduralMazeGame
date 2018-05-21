@@ -107,14 +107,17 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         void GenerateCorridors()
         {
-            int x = Random.Range(0, width), y = Random.Range(0, height);
-            while (tiles[x,y].availability != TileAvailability.Empty)
+            for (int x = 0; x < width; x++)
             {
-                x = Random.Range(0, width);
-                y = Random.Range(0, height);
+                for (int y = 0; y < height; y++)
+                {
+                    if (tiles[x, y].availability == TileAvailability.Empty)
+                    {
+                        Debug.Log("Starting corridor generation at (" + x + ", " + y + ")");
+                        RecursiveCorridorGenerator(x, y);
+                    }
+                }
             }
-            Debug.Log("Starting corridor generation at (" + x + ", " + y + ")");
-            RecursiveCorridorGenerator(x, y);
         }
 
         void RecursiveCorridorGenerator(int x, int y)
