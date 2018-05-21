@@ -52,6 +52,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c40146a19cf9b3945a2467911bd648c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomColour: {r: 1, g: 0.4481132, b: 0.4481132, a: 1}
+  mazeColour: {r: 0.4481132, g: 0.4481132, b: 1, a: 1}
   sprites:
   - {fileID: 21300032, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
   - {fileID: 21300034, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
@@ -102,7 +104,6 @@ MonoBehaviour:
   - {fileID: 21300124, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
   - {fileID: 21300126, guid: 71039b75ca5f3f84c809ab02bdc5cd64, type: 3}
   renderer: {fileID: 0}
-  availability: 0
   isStart: 0
   isEnd: 0
 --- !u!212 &212821154360550100

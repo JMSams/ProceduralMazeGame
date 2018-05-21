@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Text;
 
 namespace FallingSloth.ProceduralMazeGenerator
 {
@@ -52,6 +53,11 @@ namespace FallingSloth.ProceduralMazeGenerator
             return new DungeonRoom(Random.Range(0, gridSizeX - sizeX),
                                    Random.Range(0, gridSizeY - sizeY),
                                    sizeX, sizeY);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{{{0}, {1}, {2}, {3}}}", x, y, width, height);
         }
     }
 }

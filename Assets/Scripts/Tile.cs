@@ -5,6 +5,9 @@ namespace FallingSloth.ProceduralMazeGenerator
 {
     public class Tile : MonoBehaviour
     {
+        public Color roomColour = Color.red;
+        public Color mazeColour = Color.blue;
+
         public List<Sprite> sprites;
 
         [HideInInspector]
@@ -13,8 +16,12 @@ namespace FallingSloth.ProceduralMazeGenerator
         [HideInInspector]
         new public SpriteRenderer renderer;
 
-        [HideInInspector]
-        public TileAvailability availability = TileAvailability.Empty;
+        TileAvailability _availability = TileAvailability.Empty;
+        public TileAvailability availability
+        {
+            get { return _availability; }
+            set { _availability = value; SetSprite(); }
+        }
 
         Directions _corridors;
         public Directions corridors
@@ -143,6 +150,19 @@ namespace FallingSloth.ProceduralMazeGenerator
                         else
                             renderer.sprite = sprites[13];
                     }
+                    break;
+            }
+
+            switch (availability)
+            {
+                case TileAvailability.Empty:
+                    renderer.color = Color.white;
+                    break;
+                case TileAvailability.Maze:
+                    renderer.color = mazeColour;
+                    break;
+                case TileAvailability.Room:
+                    renderer.color = roomColour;
                     break;
             }
         }
