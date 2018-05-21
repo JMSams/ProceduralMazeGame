@@ -19,13 +19,13 @@ namespace FallingSloth.ProceduralMazeGenerator
         [Range(1, 255)]
         public int maxRoomPlaceAttempts = 1;
 
-        //public bool allowRoomOverlap = false;
-
         public Tile tilePrefab;
 
         public char mazeChar = '*', roomChar = '#';
 
         public Tile[,] tiles;
+
+        public TMPro.TextMeshProUGUI timeText;
 
         List<Vector2Int> deadEnds;
 
@@ -37,6 +37,8 @@ namespace FallingSloth.ProceduralMazeGenerator
             get { return tiles[x, y]; }
             set { tiles[x, y] = value; }
         }
+
+        float startTime = 0;
 
         public void OutputCurrentDungeon()
         {
@@ -50,6 +52,8 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         public void GenerateDungeon()
         {
+            startTime = Time.realtimeSinceStartup;
+
             #region Clear existing tiles
             if (tiles != null)
             {
@@ -133,7 +137,7 @@ namespace FallingSloth.ProceduralMazeGenerator
                 {
                     if (tiles[x, y].availability == TileAvailability.Empty)
                     {
-                        Debug.Log("Starting corridor generation at (" + x + ", " + y + ")");
+                        //Debug.Log("Starting corridor generation at (" + x + ", " + y + ")");
                         RecursiveCorridorGenerator(x, y);
                     }
                 }
@@ -160,10 +164,13 @@ namespace FallingSloth.ProceduralMazeGenerator
             #endregion
 
             #region Use regresion to eliminate some of the dead ends
+
             #endregion
 
             #region Make entrances into rooms
             #endregion
+
+            timeText.text = string.Format("Dungeon generated in {0:F3} seconds.", (Time.realtimeSinceStartup - startTime));
         }
 
         void SetupRoomTiles(DungeonRoom room)

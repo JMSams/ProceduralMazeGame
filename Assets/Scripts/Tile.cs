@@ -80,6 +80,12 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         void SetSprite()
         {
+            if (availability == TileAvailability.Empty)
+            {
+                renderer.sprite = null;
+                return;
+            }
+
             switch (corridors)
             {
                 case Directions.None:
