@@ -175,19 +175,14 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         void SetupRoomTiles(DungeonRoom room)
         {
-#if UNITY_EDITOR
-            Color roomColour = new Color((Random.value * .75f) + .25f,
-                                         (Random.value * .75f) + .25f,
-                                         (Random.value * .75f) + .25f);
-#endif
+            Color roomColour = Color.HSVToRGB(Random.value, 1f, 1f);
 
             for (int x = room.left; x <= room.right; x++)
             {
                 for (int y = room.bottom; y <= room.top; y++)
                 {
-#if UNITY_EDITOR
                     tiles[x, y].renderer.color = roomColour;
-#endif
+
                     if (x > room.left) tiles[x, y].corridors |= Directions.West;
                     if (x == room.left && x > 0 && tiles[x - 1, y].availability == TileAvailability.Room) tiles[x, y].corridors |= Directions.West;
 
