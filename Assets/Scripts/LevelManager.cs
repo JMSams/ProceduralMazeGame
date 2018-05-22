@@ -9,9 +9,16 @@ namespace FallingSloth.ProceduralMazeGenerator
         public Dungeon dungeon;
         public SceneFader fader;
 
-        void Awake()
+        void Start()
         {
+            fader.FadeOutCompleteDelegate += this.FadeOutComplete;
+
             dungeon.dungeonCompleteCallback += this.OnDungeonComplete;
+            dungeon.GenerateDungeon();
+        }
+
+        internal void FadeOutComplete()
+        {
             dungeon.GenerateDungeon();
         }
 

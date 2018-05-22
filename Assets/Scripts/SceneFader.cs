@@ -8,6 +8,10 @@ namespace FallingSloth.ProceduralMazeGenerator
     {
         public bool autoFadeIn = true;
 
+        public delegate void FadeCompleteDelegate();
+        public FadeCompleteDelegate FadeInCompleteDelegate;
+        public FadeCompleteDelegate FadeOutCompleteDelegate;
+
         Animator animator;
         
         int levelIndex = -1;
@@ -32,7 +36,10 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         public void FadeOutComplete()
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(levelIndex);
+            FadeOutCompleteDelegate();
+
+            if (levelIndex > -1)
+                UnityEngine.SceneManagement.SceneManager.LoadScene(levelIndex);
         }
     }
 }
