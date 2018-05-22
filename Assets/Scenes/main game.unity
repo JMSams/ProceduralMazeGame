@@ -113,6 +113,164 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &241512934
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 367596640}
+    m_Modifications:
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114629054868164722, guid: d91432fda9e833c4e888bb13c7898eb1,
+        type: 2}
+      propertyPath: autoFadeIn
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: d91432fda9e833c4e888bb13c7898eb1, type: 2}
+  m_IsPrefabParent: 0
+--- !u!114 &241512935 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114629054868164722, guid: d91432fda9e833c4e888bb13c7898eb1,
+    type: 2}
+  m_PrefabInternal: {fileID: 241512934}
+  m_Script: {fileID: 11500000, guid: 8e81d3756d7a206419c2861732c051e7, type: 3}
+--- !u!224 &241512936 stripped
+RectTransform:
+  m_PrefabParentObject: {fileID: 224926025734198860, guid: d91432fda9e833c4e888bb13c7898eb1,
+    type: 2}
+  m_PrefabInternal: {fileID: 241512934}
+--- !u!1 &351561911
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 351561913}
+  - component: {fileID: 351561912}
+  m_Layer: 0
+  m_Name: LevelManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &351561912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 351561911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c03726b46235bd419d8dc3520811e98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dungeon: {fileID: 387144182}
+  fader: {fileID: 241512935}
+--- !u!4 &351561913
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 351561911}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &361066695
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,6 +439,7 @@ RectTransform:
   m_Children:
   - {fileID: 1110322023}
   - {fileID: 1922109088}
+  - {fileID: 241512936}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -473,10 +632,10 @@ MonoBehaviour:
   width: 57
   height: 32
   minRoomSize: 3
-  maxRoomSize: 12
-  minRoomCount: 10
+  maxRoomSize: 9
+  minRoomCount: 8
   maxRoomCount: 30
-  maxRoomPlaceAttempts: 1
+  maxRoomPlaceAttempts: 250
   tilePrefab: {fileID: 114543085451310182, guid: 10ce702d61884154493ecb4704947287,
     type: 2}
   mazeChar: 42

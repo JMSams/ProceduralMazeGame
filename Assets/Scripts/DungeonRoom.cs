@@ -41,8 +41,8 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         public static bool OverlapCheck(DungeonRoom d1, DungeonRoom d2)
         {
-            return (((d1.x + d1.width) < d2.x) || (d1.x > (d2.x + d2.width)))
-                && (((d1.y + d1.height) < d2.y) || (d1.y > (d2.y + d2.height)));
+            return (((d1.right >= d2.left) && (d1.left <= d2.right))
+                && ((d1.top >= d2.bottom) && (d1.bottom <= d2.top)));
         }
 
         public static DungeonRoom GenerateNewRoom(int minSize, int maxSize, int gridSizeX, int gridSizeY)

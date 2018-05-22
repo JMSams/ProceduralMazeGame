@@ -168,7 +168,7 @@ namespace FallingSloth.ProceduralMazeGenerator
                     renderer.color = mazeColour;
                     break;
                 case TileAvailability.Room:
-                    renderer.color = roomColour;
+                    //renderer.color = roomColour;
                     break;
             }
         }

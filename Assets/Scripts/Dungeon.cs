@@ -16,7 +16,7 @@ namespace FallingSloth.ProceduralMazeGenerator
         [Range(1, 100)]
         public int minRoomCount = 1, maxRoomCount = 20;
 
-        [Range(1, 255)]
+        [Range(1, 2000)]
         public int maxRoomPlaceAttempts = 1;
 
         public Tile tilePrefab;
@@ -31,6 +31,9 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         [HideInInspector]
         public List<DungeonRoom> rooms;
+
+        public delegate void DungeonCompleteCallbackDelegate();
+        public DungeonCompleteCallbackDelegate dungeonCompleteCallback;
 
         public Tile this[int x, int y]
         {
@@ -53,6 +56,9 @@ namespace FallingSloth.ProceduralMazeGenerator
         public void GenerateDungeon()
         {
             startTime = Time.realtimeSinceStartup;
+
+            if (maxRoomPlaceAttempts < minRoomCount)
+                maxRoomPlaceAttempts = minRoomCount;
 
             #region Clear existing tiles
             if (tiles != null)
@@ -91,31 +97,21 @@ namespace FallingSloth.ProceduralMazeGenerator
 
             #region Create random amount of rooms
             DungeonRoom temp;
-            for (int r = 0; r < Random.Range(minRoomCount, maxRoomCount + 1); r++)
+            int targetRoomCount = Random.Range(minRoomCount, maxRoomCount + 1);
+            for (int r = 0; r < maxRoomPlaceAttempts; r++)
             {
-                int attempts = 0;
-                bool breakLoop = false;
-                #region Generate rooms until the new room doesn't overlap any existing rooms, up to maxRoomPlaceAttempts
-                do
+                temp = DungeonRoom.GenerateNewRoom(minRoomSize, maxRoomSize, width, height);
+                if (rooms.Count > 0)
                 {
-                    temp = DungeonRoom.GenerateNewRoom(minRoomSize, maxRoomSize, width, height);
-                    if (rooms.Count > 0)
+                    bool overlap = false;
+                    for (int i = 0; i < rooms.Count; i++)
                     {
-                        foreach (DungeonRoom room in rooms)
-                        {
-                            if (DungeonRoom.OverlapCheck(room, temp))
-                                attempts++;
-                            else
-                                breakLoop = true;
-                        }
+                        Debug.Log(string.Format("Overlap: {0}|{1}|{2}", DungeonRoom.OverlapCheck(rooms[i], temp), rooms[i], temp));
+                        overlap |= DungeonRoom.OverlapCheck(rooms[i], temp);
                     }
-                    else
-                    {
-                        breakLoop = true;
-                    }
+                    if (overlap)
+                        continue;
                 }
-                while (attempts < maxRoomPlaceAttempts && !breakLoop);
-                #endregion
 
                 // Mark room tiles as such
                 for (int x = temp.left; x <= temp.right; x++)
@@ -123,6 +119,8 @@ namespace FallingSloth.ProceduralMazeGenerator
                         tiles[x, y].availability = TileAvailability.Room;
 
                 rooms.Add(temp);
+                if (rooms.Count >= targetRoomCount)
+                    break;
             }
             #endregion
             
@@ -171,14 +169,23 @@ namespace FallingSloth.ProceduralMazeGenerator
             #endregion
 
             timeText.text = string.Format("Dungeon generated in {0:F3} seconds.", (Time.realtimeSinceStartup - startTime));
+
+            dungeonCompleteCallback();
         }
 
         void SetupRoomTiles(DungeonRoom room)
         {
+#if UNITY_EDITOR
+            Color roomColour = Color.HSVToRGB(Random.value, 1, 1);
+#endif
+
             for (int x = room.left; x <= room.right; x++)
             {
                 for (int y = room.bottom; y <= room.top; y++)
                 {
+#if UNITY_EDITOR
+                    tiles[x, y].renderer.color = roomColour;
+#endif
                     if (x > room.left) tiles[x, y].corridors |= Directions.West;
                     if (x == room.left && x > 0 && tiles[x - 1, y].availability == TileAvailability.Room) tiles[x, y].corridors |= Directions.West;
 
