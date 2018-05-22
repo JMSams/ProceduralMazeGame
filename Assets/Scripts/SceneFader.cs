@@ -36,7 +36,7 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         public void FadeOutComplete()
         {
-            FadeOutCompleteDelegate();
+            FadeOutCompleteDelegate?.Invoke();
 
             if (levelIndex > -1)
                 UnityEngine.SceneManagement.SceneManager.LoadScene(levelIndex);

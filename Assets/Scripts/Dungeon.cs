@@ -170,7 +170,7 @@ namespace FallingSloth.ProceduralMazeGenerator
 
             timeText.text = string.Format("Dungeon generated in {0:F3} seconds.", (Time.realtimeSinceStartup - startTime));
 
-            dungeonCompleteCallback();
+            dungeonCompleteCallback?.Invoke();
         }
 
         void SetupRoomTiles(DungeonRoom room)
