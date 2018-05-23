@@ -30,6 +30,7 @@ namespace FallingSloth.ProceduralMazeGenerator
         public int right { get { return x + width; } }
         public int top { get { return y + height; } }
         public int bottom { get { return y; } }
+        public Vector2 center { get { return new Vector2(x + (width / 2f), y + (height / 2f)); } }
 
         protected DungeonRoom(int x, int y, int width, int height)
         {

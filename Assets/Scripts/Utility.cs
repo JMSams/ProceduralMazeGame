@@ -12,7 +12,7 @@ namespace FallingSloth.ProceduralMazeGenerator
             return list.OrderBy(i => Random.value).ToList();
         }
 
-        public static Directions OppositeDirection(Directions direction)
+        public static Directions Opposite(this Directions direction)
         {
             switch (direction)
             {
@@ -25,8 +25,15 @@ namespace FallingSloth.ProceduralMazeGenerator
                 case Directions.West:
                     return Directions.East;
                 default:
-                    throw new System.ArgumentOutOfRangeException();
+                    return Directions.None;
             }
+        }
+
+        public static Vector2Int MeanSize(this List<DungeonRoom> rooms)
+        {
+            int totalX = 0, totalY = 0;
+            rooms.ForEach((room) => { totalX += room.width; totalY += room.height; });
+            return new Vector2Int(totalX/rooms.Count, totalY/rooms.Count);
         }
     }
 

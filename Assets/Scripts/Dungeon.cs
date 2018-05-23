@@ -27,6 +27,8 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         public TMPro.TextMeshProUGUI timeText;
 
+        public float lastDungeonTime { get; protected set; }
+
         List<Vector2Int> deadEnds;
 
         [HideInInspector]
@@ -106,7 +108,6 @@ namespace FallingSloth.ProceduralMazeGenerator
                     bool overlap = false;
                     for (int i = 0; i < rooms.Count; i++)
                     {
-                        Debug.Log(string.Format("Overlap: {0}|{1}|{2}", DungeonRoom.OverlapCheck(rooms[i], temp), rooms[i], temp));
                         overlap |= DungeonRoom.OverlapCheck(rooms[i], temp);
                     }
                     if (overlap)
@@ -128,47 +129,27 @@ namespace FallingSloth.ProceduralMazeGenerator
                 SetupRoomTiles(room);
             #endregion
 
-            #region Generate corridors using recursive backtracker, making sure to fill any islands
-            for (int x = 0; x < width; x++)
+            #region Mark main rooms
+            List<DungeonRoom> mainRooms = new List<DungeonRoom>();
+            Vector2Int meanSize = rooms.MeanSize();
+            meanSize.x = Mathf.RoundToInt(meanSize.x * 1.25f);
+            meanSize.y = Mathf.RoundToInt(meanSize.y * 1.25f);
+            rooms.ForEach((room) =>
             {
-                for (int y = 0; y < height; y++)
+                if (room.width >= meanSize.x
+                    && room.height >= meanSize.y)
                 {
-                    if (tiles[x, y].availability == TileAvailability.Empty)
-                    {
-                        //Debug.Log("Starting corridor generation at (" + x + ", " + y + ")");
-                        RecursiveCorridorGenerator(x, y);
-                    }
+                    mainRooms.Add(room);
                 }
-            }
+            });
             #endregion
 
-            #region Mark all dead ends
-            deadEnds = new List<Vector2Int>();
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    switch (tiles[x,y].corridors)
-                    {
-                        case Directions.North:
-                        case Directions.East:
-                        case Directions.South:
-                        case Directions.West:
-                            deadEnds.Add(new Vector2Int(x, y));
-                            break;
-                    }
-                }
-            }
-            #endregion
-
-            #region Use regresion to eliminate some of the dead ends
+            #region Link main rooms
 
             #endregion
 
-            #region Make entrances into rooms
-            #endregion
-
-            timeText.text = string.Format("Dungeon generated in {0:F3} seconds.", (Time.realtimeSinceStartup - startTime));
+            lastDungeonTime = Time.realtimeSinceStartup - startTime;
+            timeText.text = string.Format("Dungeon generated in {0:F3} seconds.", lastDungeonTime);
 
             dungeonCompleteCallback?.Invoke();
         }
@@ -194,44 +175,6 @@ namespace FallingSloth.ProceduralMazeGenerator
 
                     if (y < room.top) tiles[x, y].corridors |= Directions.North;
                     if (y == room.top && y < this.height-1 && tiles[x, y + 1].availability == TileAvailability.Room) tiles[x, y].corridors |= Directions.North;
-                }
-            }
-        }
-
-        void RecursiveCorridorGenerator(int x, int y)
-        {
-            tiles[x, y].availability = TileAvailability.Maze;
-
-            List<Directions> directions = new List<Directions>();
-            if (y > 0) directions.Add(Directions.South);
-            if (y < height - 1) directions.Add(Directions.North);
-            if (x > 0) directions.Add(Directions.West);
-            if (x < width - 1) directions.Add(Directions.East);
-            directions = directions.Shuffle();
-
-            foreach (Directions direction in directions)
-            {
-                int xOffset = 0, yOffset = 0;
-                switch (direction)
-                {
-                    case Directions.North:
-                        yOffset = 1;
-                        break;
-                    case Directions.East:
-                        xOffset = 1;
-                        break;
-                    case Directions.South:
-                        yOffset = -1;
-                        break;
-                    case Directions.West:
-                        xOffset = -1;
-                        break;
-                }
-                if (tiles[x + xOffset, y + yOffset].availability == TileAvailability.Empty)
-                {
-                    tiles[x, y][direction] = true;
-                    tiles[x + xOffset, y + yOffset][Utility.OppositeDirection(direction)] = true;
-                    RecursiveCorridorGenerator(x + xOffset, y + yOffset);
                 }
             }
         }
