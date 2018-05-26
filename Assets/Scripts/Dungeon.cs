@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Collections;
 
 namespace FallingSloth.ProceduralMazeGenerator
 {
@@ -18,6 +19,11 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         [Range(1, 2000)]
         public int maxRoomPlaceAttempts = 1;
+
+        [Range(0.01f, 1f)]
+        public float delayTime = 0.05f;
+
+        public bool showWorking = false;
 
         public Tile tilePrefab;
 
@@ -36,6 +42,8 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         public delegate void DungeonCompleteCallbackDelegate();
         public DungeonCompleteCallbackDelegate dungeonCompleteCallback;
+
+        public bool isRunning { get; protected set; }
 
         public Tile this[int x, int y]
         {
@@ -57,6 +65,17 @@ namespace FallingSloth.ProceduralMazeGenerator
 
         public void GenerateDungeon()
         {
+            if (!isRunning)
+            {
+                isRunning = true;
+                StartCoroutine(GenerateDungeonAsync());
+            }
+        }
+
+        IEnumerator GenerateDungeonAsync()
+        {
+            yield return null;
+
             startTime = Time.realtimeSinceStartup;
 
             if (maxRoomPlaceAttempts < minRoomCount)
@@ -126,41 +145,62 @@ namespace FallingSloth.ProceduralMazeGenerator
             #endregion
             
             foreach (DungeonRoom room in rooms)
-                SetupRoomTiles(room);
+                yield return StartCoroutine(SetupRoomTiles(room));
             #endregion
 
-            #region Mark main rooms
-            List<DungeonRoom> mainRooms = new List<DungeonRoom>();
-            Vector2Int meanSize = rooms.MeanSize();
-            meanSize.x = Mathf.RoundToInt(meanSize.x * 1.25f);
-            meanSize.y = Mathf.RoundToInt(meanSize.y * 1.25f);
-            rooms.ForEach((room) =>
+            #region Generate corridors using recursive backtracker, making sure to fill any islands
+            for (int x = 0; x < width; x++)
             {
-                if (room.width >= meanSize.x
-                    && room.height >= meanSize.y)
+                for (int y = 0; y < height; y++)
                 {
-                    mainRooms.Add(room);
+                    if (tiles[x, y].availability == TileAvailability.Empty)
+                    {
+                        yield return StartCoroutine(RecursiveCorridorGenerator(x, y));
+                    }
                 }
-            });
+            }
             #endregion
 
-            #region Link main rooms
+            #region Mark all dead ends
+            deadEnds = new List<Vector2Int>();
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    switch (tiles[x,y].corridors)
+                    {
+                        case Directions.North:
+                        case Directions.East:
+                        case Directions.South:
+                        case Directions.West:
+                            deadEnds.Add(new Vector2Int(x, y));
+                            break;
+                    }
+                }
+            }
+            #endregion
 
+            #region Use regresion to eliminate some of the dead ends
+            #endregion
+
+            #region Make entrances into rooms
             #endregion
 
             lastDungeonTime = Time.realtimeSinceStartup - startTime;
             timeText.text = string.Format("Dungeon generated in {0:F3} seconds.", lastDungeonTime);
 
             dungeonCompleteCallback?.Invoke();
+
+            isRunning = false;
         }
 
-        void SetupRoomTiles(DungeonRoom room)
+        IEnumerator SetupRoomTiles(DungeonRoom room)
         {
             Color roomColour = Color.HSVToRGB(Random.value, 1f, 1f);
 
-            for (int x = room.left; x <= room.right; x++)
+            for (int y = room.bottom; y <= room.top; y++)
             {
-                for (int y = room.bottom; y <= room.top; y++)
+                for (int x = room.left; x <= room.right; x++)
                 {
                     tiles[x, y].renderer.color = roomColour;
 
@@ -175,6 +215,53 @@ namespace FallingSloth.ProceduralMazeGenerator
 
                     if (y < room.top) tiles[x, y].corridors |= Directions.North;
                     if (y == room.top && y < this.height-1 && tiles[x, y + 1].availability == TileAvailability.Room) tiles[x, y].corridors |= Directions.North;
+
+                    if (showWorking)
+                        yield return new WaitForSeconds(delayTime);
+                }
+                if (showWorking)
+                    yield return new WaitForSeconds(delayTime);
+            }
+        }
+
+        IEnumerator RecursiveCorridorGenerator(int x, int y)
+        {
+            tiles[x, y].availability = TileAvailability.Maze;
+
+            List<Directions> directions = new List<Directions>();
+            if (y > 0) directions.Add(Directions.South);
+            if (y < height - 1) directions.Add(Directions.North);
+            if (x > 0) directions.Add(Directions.West);
+            if (x < width - 1) directions.Add(Directions.East);
+            directions = directions.Shuffle();
+
+            foreach (Directions direction in directions)
+            {
+                int xOffset = 0, yOffset = 0;
+                switch (direction)
+                {
+                    case Directions.North:
+                        yOffset = 1;
+                        break;
+                    case Directions.East:
+                        xOffset = 1;
+                        break;
+                    case Directions.South:
+                        yOffset = -1;
+                        break;
+                    case Directions.West:
+                        xOffset = -1;
+                        break;
+                }
+                if (tiles[x + xOffset, y + yOffset].availability == TileAvailability.Empty)
+                {
+                    tiles[x, y][direction] = true;
+                    tiles[x + xOffset, y + yOffset][direction.Opposite()] = true;
+
+                    if (showWorking)
+                        yield return new WaitForSeconds(delayTime);
+
+                    yield return StartCoroutine(RecursiveCorridorGenerator(x + xOffset, y + yOffset));
                 }
             }
         }
